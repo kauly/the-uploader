@@ -37,6 +37,7 @@ const config = {
 const configureFastify = async (fastify, options) => {
   if (options.side === 'api') {
     fastify.log.trace({ custom: { options } }, 'Configuring api side')
+    await fastify.register(import('fastify-file-upload'))
   }
 
   if (options.side === 'web') {
