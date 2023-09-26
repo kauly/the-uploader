@@ -3,7 +3,7 @@ import fs from 'fs'
 import type { APIGatewayEvent, Context } from 'aws-lambda'
 
 import { logger } from 'src/lib/logger'
-
+import { asset as findAsset } from 'src/services/assets'
 /**
  * The handler function is your code that processes http request events.
  * You can use return and throw to send a response or error, respectively.
@@ -22,16 +22,26 @@ import { logger } from 'src/lib/logger'
  */
 export const handler = async (event: APIGatewayEvent, _context: Context) => {
   logger.info(`${event.httpMethod} ${event.path}: downloadFile function`)
-  const body = JSON.parse(event.body) as { location: string }
-  const file = await fs.promises.readFile(body.location)
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'image/png',
-      'Content-Length': file.length,
-    },
-    body: file.toString('base64'),
-    isBase64Encoded: true,
+  try {
+    const body = JSON.parse(event.body) as { id: string }
+    const asset = await findAsset({ id: body.id })
+    console.log('🚀 ~ file: downloadFile.ts:28 ~ handler ~ asset:', asset)
+    const file = await fs.promises.readFile(asset.location)
+    const mime = asset.ext.split(':')[1]
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': mime,
+        'Content-Length': file.length,
+      },
+      body: `${asset.ext};${file.toString('base64')}`,
+      isBase64Encoded: true,
+    }
+  } catch (err) {
+    console.error(err)
+    return {
+      status: 500,
+      body: 'Something went wrong with your download',
+    }
   }
 }

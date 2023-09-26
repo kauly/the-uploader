@@ -11,19 +11,26 @@ function RowActions<D>({ onDelete, onEdit, data }: RowActionsProps<D>) {
   const deleteWrapper = () => onDelete(data)
   const downloadWrapper = async () => {
     try {
-      console.log('🚀 ~ file: RowActions.tsx:10 ~ data:', data)
-
-      /*  const response = await fetch('http://localhost:8911/downloadFile', {
-        method: 'POST',
-        body: JSON.stringify({ location: data.location }),
-      })
+      const response = await fetch(
+        'http:/localhost:8910/.redwood/functions/downloadFile',
+        {
+          method: 'POST',
+          body: JSON.stringify({ id: data.id }),
+        }
+      )
       const base64Str = response.body
+      console.log(
+        '🚀 ~ file: RowActions.tsx:22 ~ downloadWrapper ~ base64Str:',
+        base64Str
+      )
+      const base64response = await fetch(base64Str)
+      const blob = await base64response.blob()
       const downloadLink = document.createElement('a')
       const fileName = data.name
 
-      downloadLink.href = base64Str
+      downloadLink.href = blob
       downloadLink.download = fileName
-      downloadLink.click() */
+      downloadLink.click()
     } catch (err) {
       console.error(err)
     }

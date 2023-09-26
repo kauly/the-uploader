@@ -4,6 +4,7 @@ export const schema = gql`
     name: String!
     location: String!
     version: Int!
+    ext: String!
   }
 
   type Query {
