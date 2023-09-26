@@ -7,14 +7,17 @@ import { db } from 'src/lib/db'
 
 const ASSETS_DIR = path.join(__dirname, '..', '/files')
 
-const saveFile = async (base64Str: string, name: string) => {
-  const base64File = base64Str.split(';base64').pop()
+const saveFile = async (
+  base64Str: string,
+  name: string
+): Promise<{ location: string; ext: string }> => {
+  const base64 = base64Str.split(';base64')
   if (!fs.existsSync(ASSETS_DIR)) {
     await fs.promises.mkdir(ASSETS_DIR)
   }
   const fileName = path.join(ASSETS_DIR, name)
-  await fs.promises.writeFile(fileName, base64File, { encoding: 'base64' })
-  return fileName
+  await fs.promises.writeFile(fileName, base64[1], { encoding: 'base64' })
+  return { location: fileName, ext: base64[0] }
 }
 
 export const assets: QueryResolvers['assets'] = () => {
@@ -30,9 +33,9 @@ export const asset: QueryResolvers['asset'] = ({ id }) => {
 export const createAsset: MutationResolvers['createAsset'] = async ({
   input,
 }) => {
-  const location = await saveFile(input.file, input.name)
+  const data = await saveFile(input.file, input.name)
   return db.asset.create({
-    data: { name: input.name, location },
+    data: { name: input.name, ...data },
   })
 }
 

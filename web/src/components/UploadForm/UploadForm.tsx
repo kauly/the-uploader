@@ -1,3 +1,8 @@
+import type {
+  CreateAssetMutation,
+  CreateAssetMutationVariables,
+} from 'types/graphql'
+
 import { Form, FileField, Label, useForm } from '@redwoodjs/forms'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
@@ -18,11 +23,15 @@ const CREATE_ASSET = gql`
 `
 
 const UploadForm = () => {
-  const [create] = useMutation(CREATE_ASSET, {
+  const [create, { loading }] = useMutation<
+    CreateAssetMutation,
+    CreateAssetMutationVariables
+  >(CREATE_ASSET, {
     onCompleted: (data) => {
       toast.success(`File ${data?.createAsset?.name ?? 'unavailable'} uploaded`)
       formMethods.reset()
     },
+    refetchQueries: ['AssetsQuery'],
   })
   const formMethods = useForm()
 
@@ -30,7 +39,7 @@ const UploadForm = () => {
     const reader = new FileReader()
     reader.readAsDataURL(data.asset[0])
     reader.onload = function () {
-      const base64 = reader.result
+      const base64 = reader.result as string
       create({
         variables: { input: { name: data.asset[0].name, file: base64 } },
       })
@@ -50,7 +59,9 @@ const UploadForm = () => {
         </span>
 
         <div className="ml-auto">
-          <Button type="submit">Save</Button>
+          <Button type="submit" loading={loading}>
+            Save
+          </Button>
         </div>
       </Form>
     </div>

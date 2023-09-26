@@ -20,6 +20,7 @@ const config = {
     // the default non-development level to `info`
     level: process.env.NODE_ENV === 'development' ? 'debug' : 'warn',
   },
+  bodyLimit: 50 * 1024 * 1024,
 }
 
 /**
@@ -37,7 +38,15 @@ const config = {
 const configureFastify = async (fastify, options) => {
   if (options.side === 'api') {
     fastify.log.trace({ custom: { options } }, 'Configuring api side')
-    await fastify.register(import('fastify-file-upload'))
+    // await fastify.register(import('@fastify/multipart'))
+    fastify.addContentTypeParser(
+      /^image|text|application|video|audio\/.*/,
+      (req, payload, done) => {
+        payload.on('end', () => {
+          done()
+        })
+      }
+    )
   }
 
   if (options.side === 'web') {
