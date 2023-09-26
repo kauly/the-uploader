@@ -1,7 +1,4 @@
-import type {
-  CreateAssetMutation,
-  CreateAssetMutationVariables,
-} from 'types/graphql'
+import type { MutationsaveFileArgs } from 'types/graphql'
 
 import { Form, FileField, Label, useForm } from '@redwoodjs/forms'
 import { useMutation } from '@redwoodjs/web'
@@ -11,24 +8,19 @@ import Button from '../Button/Button'
 
 interface FormValues {
   name: string
-  asset: File
+  asset: FileList
 }
 
-const CREATE_ASSET = gql`
-  mutation CreateAssetMutation($input: CreateAssetInput!) {
-    createAsset(input: $input) {
-      name
-    }
+const SAVE_FILE = gql`
+  mutation SaveFileMutation($file: File!) {
+    saveFile(file: $file)
   }
 `
 
 const UploadForm = () => {
-  const [create, { loading }] = useMutation<
-    CreateAssetMutation,
-    CreateAssetMutationVariables
-  >(CREATE_ASSET, {
+  const [create, { loading }] = useMutation<MutationsaveFileArgs>(SAVE_FILE, {
     onCompleted: (data) => {
-      toast.success(`File ${data?.createAsset?.name ?? 'unavailable'} uploaded`)
+      toast.success(`File ${data?.file ?? 'unavailable'} uploaded`)
       formMethods.reset()
     },
     refetchQueries: ['AssetsQuery'],
@@ -36,14 +28,11 @@ const UploadForm = () => {
   const formMethods = useForm()
 
   const handleSubmit = (data: FormValues) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(data.asset[0])
-    reader.onload = function () {
-      const base64 = reader.result as string
-      create({
-        variables: { input: { name: data.asset[0].name, file: base64 } },
-      })
-    }
+    const formData = new FormData()
+    formData.append('file', data.asset[0])
+    create({
+      variables: { file: formData },
+    })
   }
 
   return (
