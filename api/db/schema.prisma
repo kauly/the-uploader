@@ -15,6 +15,4 @@ model Asset {
     name String
     location String
     ext String
-    version Int @default(1)
-    deleted Boolean @default(false)
 }
