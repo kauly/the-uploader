@@ -1,6 +1,5 @@
 import type { QueryResolvers, MutationResolvers } from 'types/graphql'
 
-import { putObject } from 'src/lib/bucket'
 import { db } from 'src/lib/db'
 import { saveFile, deleteFile, renameFile } from 'src/lib/fileSystem'
 
@@ -18,7 +17,8 @@ export const createAsset: MutationResolvers['createAsset'] = async ({
   input,
 }) => {
   const data = await saveFile(input.file, input.name)
-  await putObject(input.file, input.name)
+  if (typeof data === 'string') return
+
   return db.asset.create({
     data: { name: input.name, ...data },
   })

@@ -7,12 +7,13 @@ const removeFileNameRegex = /(.*)\/[^\/]+$/
 const saveFile = async (
   base64Str: string,
   name: string
-): Promise<{ location: string; ext: string }> => {
+): Promise<{ location: string; ext: string } | string> => {
   const base64 = base64Str.split(';base64')
   if (!fs.existsSync(ASSETS_DIR)) {
     await fs.promises.mkdir(ASSETS_DIR)
   }
   const fileName = path.join(ASSETS_DIR, name)
+  if (fs.existsSync(fileName)) return 'no-op'
   await fs.promises.writeFile(fileName, base64[1], { encoding: 'base64' })
   return { location: fileName, ext: base64[0] }
 }

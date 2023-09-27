@@ -16,3 +16,9 @@ model Asset {
     location String
     ext String
 }
+
+model BucketAsset {
+    id String @id @default(uuid())
+    name String
+    version Int @default(1)
+}

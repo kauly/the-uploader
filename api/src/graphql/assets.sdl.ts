@@ -3,7 +3,6 @@ export const schema = gql`
     id: String!
     name: String!
     location: String!
-    version: Int!
     ext: String!
   }
 
@@ -20,7 +19,6 @@ export const schema = gql`
   input UpdateAssetInput {
     name: String
     location: String
-    version: Int
     file: String
   }
 
