@@ -17,6 +17,7 @@ const Routes = () => {
       <Set wrap={MainLayout}>
         <Route path="/" page={HomePage} name="home" />
         <Route path="/file-system" page={FileSystemPage} name="fileSystem" />
+        <Route path="/bucket-system" page={BucketSystemPage} name="bucketSystem" />
       </Set>
       <Route notfound page={NotFoundPage} />
     </Router>

@@ -3,8 +3,8 @@ import { Asset } from 'types/graphql'
 
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
-import DataTable from '../DataTable/DataTable'
-import RowActions from '../RowActions/RowActions'
+import DataTable from 'src/components/DataTable'
+import RowActions from 'src/components/RowActions'
 
 const columnHelper = createColumnHelper<Partial<Asset>>()
 const columns = [
