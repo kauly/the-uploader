@@ -15,6 +15,6 @@ Before start the development server make sure that you have a `.env` file with t
 yarn redwood dev
 ```
 
-*PS: This project was developed and test against a Cloudflare R2 bucket.*
+*PS: This project was developed and tested against a Cloudflare R2 bucket.*
 
 
