@@ -8,6 +8,9 @@ import {
 
 import { toast } from '@redwoodjs/web/dist/toast'
 
+import { useModal } from 'src/state/ModalContext/ModalContext'
+
+import EditForm from '../EditForm/EditForm'
 import Spinner from '../Spinner/Spinner'
 
 interface RowActionsProps {
@@ -23,6 +26,7 @@ const DELETE_ASSET = gql`
 `
 
 function RowActions({ data }: RowActionsProps) {
+  const { openModal } = useModal()
   const [deleteAsset, { loading }] = useMutation<
     DeleteAssetMutation,
     DeleteAssetMutationVariables
@@ -43,6 +47,7 @@ function RowActions({ data }: RowActionsProps) {
         return
       }
       const buff = []
+      // @ts-expect-error seems to be an old typescript problem https://github.com/microsoft/TypeScript/issues/39051
       for await (const chunk of response.body) {
         buff.push(chunk)
       }
@@ -63,6 +68,10 @@ function RowActions({ data }: RowActionsProps) {
     deleteAsset({ variables: { id: data.id } })
   }
 
+  const handleEdit = () => {
+    openModal(<EditForm assetId={data.id} />, 'Edit Asset')
+  }
+
   return (
     <div className="flex w-full items-center justify-center gap-4">
       <HardDriveDownloadIcon
@@ -71,7 +80,7 @@ function RowActions({ data }: RowActionsProps) {
       />
       <PencilIcon
         className="cursor-pointer hover:skew-y-12"
-        // onClick={editWrapper}
+        onClick={handleEdit}
       />
       {loading ? (
         <Spinner />

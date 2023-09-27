@@ -6,6 +6,7 @@ import type { QueryResolvers, MutationResolvers } from 'types/graphql'
 import { db } from 'src/lib/db'
 
 const ASSETS_DIR = path.join(__dirname, '..', '/files')
+const regex = /(.*)\/[^\/]+$/
 
 const saveFile = async (
   base64Str: string,
@@ -24,6 +25,21 @@ const deleteFile = async (location: string) => {
   try {
     if (fs.existsSync(location)) {
       await fs.promises.unlink(location)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const renameFile = async (
+  location: string,
+  newName: string
+): Promise<string> => {
+  try {
+    if (fs.existsSync(location)) {
+      const newPath = location.replace(regex, `$1`).concat(`/${newName}`)
+      await fs.promises.rename(location, newPath)
+      return newPath
     }
   } catch (err) {
     console.error(err)
@@ -49,10 +65,19 @@ export const createAsset: MutationResolvers['createAsset'] = async ({
   })
 }
 
-export const updateAsset: MutationResolvers['updateAsset'] = ({
+export const updateAsset: MutationResolvers['updateAsset'] = async ({
   id,
   input,
 }) => {
+  if (input.name) {
+    const item = await asset({ id })
+    const newLocation = await renameFile(item.location, input.name)
+    return db.asset.update({
+      data: { ...input, location: newLocation },
+      where: { id },
+    })
+  }
+
   return db.asset.update({
     data: input,
     where: { id },

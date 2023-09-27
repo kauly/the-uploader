@@ -1,9 +1,9 @@
 import type {
-  CreateAssetMutation,
-  CreateAssetMutationVariables,
+  UpdateAssetMutation,
+  UpdateAssetMutationVariables,
 } from 'types/graphql'
 
-import { Form, FileField, Label, useForm } from '@redwoodjs/forms'
+import { Form, Label, useForm, TextField } from '@redwoodjs/forms'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
@@ -13,26 +13,29 @@ import Button from '../Button/Button'
 
 interface FormValues {
   name: string
-  asset: File
 }
 
-const CREATE_ASSET = gql`
-  mutation CreateAssetMutation($input: CreateAssetInput!) {
-    createAsset(input: $input) {
+interface EditFormProps {
+  assetId: string
+}
+
+const UPDATE_ASSET = gql`
+  mutation UpdateAssetMutation($id: String!, $input: UpdateAssetInput!) {
+    updateAsset(id: $id, input: $input) {
       name
     }
   }
 `
 
-const UploadForm = () => {
+const EditForm = ({ assetId }: EditFormProps) => {
   const { closeModal } = useModal()
   const formMethods = useForm()
   const [create, { loading }] = useMutation<
-    CreateAssetMutation,
-    CreateAssetMutationVariables
-  >(CREATE_ASSET, {
+    UpdateAssetMutation,
+    UpdateAssetMutationVariables
+  >(UPDATE_ASSET, {
     onCompleted: (data) => {
-      toast.success(`File ${data?.createAsset?.name ?? 'unavailable'} uploaded`)
+      toast.success(`File ${data.updateAsset.name ?? 'unavailable'} updated`)
       closeModal()
     },
     onError: () => toast.error('Something went wrong'),
@@ -40,14 +43,9 @@ const UploadForm = () => {
   })
 
   const handleSubmit = (data: FormValues) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(data.asset[0])
-    reader.onload = function () {
-      const base64 = reader.result as string
-      create({
-        variables: { input: { name: data.asset[0].name, file: base64 } },
-      })
-    }
+    create({
+      variables: { input: { name: data.name }, id: assetId },
+    })
   }
 
   return (
@@ -58,8 +56,8 @@ const UploadForm = () => {
         formMethods={formMethods}
       >
         <span>
-          <Label name="asset">File</Label>
-          <FileField name="asset" required />
+          <Label name="name">Name</Label>
+          <TextField name="name" required />
         </span>
 
         <div className="ml-auto">
@@ -72,4 +70,4 @@ const UploadForm = () => {
   )
 }
 
-export default UploadForm
+export default EditForm
