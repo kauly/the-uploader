@@ -1,6 +1,6 @@
 # The Uploader
 
-A project to manage assets stored on the file system and on a S3 compatible bucket. The file system assets are stored on the `dist` folder, so they will not persist during develop.
+A project to manage assets stored on the file system and on a S3 compatible bucket. The file system assets are stored on the `dist/files` folder, so they will not persist during develop.
 
 Start by installing dependencies:
 
