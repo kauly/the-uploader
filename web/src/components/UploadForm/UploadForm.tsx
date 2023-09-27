@@ -1,38 +1,54 @@
-import type { MutationsaveFileArgs } from 'types/graphql'
+import type {
+  CreateAssetMutation,
+  CreateAssetMutationVariables,
+} from 'types/graphql'
 
 import { Form, FileField, Label, useForm } from '@redwoodjs/forms'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { useModal } from 'src/state/ModalContext/ModalContext'
+
 import Button from '../Button/Button'
 
 interface FormValues {
   name: string
-  asset: FileList
+  asset: File
 }
 
-const SAVE_FILE = gql`
-  mutation SaveFileMutation($file: File!) {
-    saveFile(file: $file)
+const CREATE_ASSET = gql`
+  mutation CreateAssetMutation($input: CreateAssetInput!) {
+    createAsset(input: $input) {
+      name
+    }
   }
 `
 
 const UploadForm = () => {
-  const [create, { loading }] = useMutation<MutationsaveFileArgs>(SAVE_FILE, {
+  const { closeModal } = useModal()
+  const formMethods = useForm()
+  const [create, { loading }] = useMutation<
+    CreateAssetMutation,
+    CreateAssetMutationVariables
+  >(CREATE_ASSET, {
     onCompleted: (data) => {
-      toast.success(`File ${data?.file ?? 'unavailable'} uploaded`)
-      formMethods.reset()
+      toast.success(`File ${data?.createAsset?.name ?? 'unavailable'} uploaded`)
+
+      closeModal()
     },
+    onError: () => toast.error('Something went wrong'),
     refetchQueries: ['AssetsQuery'],
   })
-  const formMethods = useForm()
 
   const handleSubmit = (data: FormValues) => {
-    const formData = new FormData()
-    formData.append('file', data.asset[0])
-    create({
-      variables: { file: formData },
-    })
+    const reader = new FileReader()
+    reader.readAsDataURL(data.asset[0])
+    reader.onload = function () {
+      const base64 = reader.result as string
+      create({
+        variables: { input: { name: data.asset[0].name, file: base64 } },
+      })
+    }
   }
 
   return (

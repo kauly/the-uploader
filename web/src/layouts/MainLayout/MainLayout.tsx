@@ -1,5 +1,3 @@
-import { Toaster } from '@redwoodjs/web/dist/toast'
-
 type MainLayoutProps = {
   children?: React.ReactNode
 }
@@ -11,7 +9,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         The Uploader
       </header>
       <main className="flex-1">{children}</main>
-      <Toaster />
     </div>
   )
 }

@@ -25,16 +25,15 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
   try {
     const body = JSON.parse(event.body) as { id: string }
     const asset = await findAsset({ id: body.id })
-    console.log('🚀 ~ file: downloadFile.ts:28 ~ handler ~ asset:', asset)
     const file = await fs.promises.readFile(asset.location)
-    const mime = asset.ext.split(':')[1]
+
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': mime,
+        'Content-Type': asset.ext.split(':')[1],
         'Content-Length': file.length,
       },
-      body: `${asset.ext};${file.toString('base64')}`,
+      body: file.toString('base64'),
       isBase64Encoded: true,
     }
   } catch (err) {

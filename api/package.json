@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.420.0",
     "@fastify/multipart": "^7.7.3",
     "@redwoodjs/api": "6.3.1",
     "@redwoodjs/graphql-server": "6.3.1",

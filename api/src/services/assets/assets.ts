@@ -20,6 +20,16 @@ const saveFile = async (
   return { location: fileName, ext: base64[0] }
 }
 
+const deleteFile = async (location: string) => {
+  try {
+    if (fs.existsSync(location)) {
+      await fs.promises.unlink(location)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 export const assets: QueryResolvers['assets'] = () => {
   return db.asset.findMany()
 }
@@ -49,7 +59,12 @@ export const updateAsset: MutationResolvers['updateAsset'] = ({
   })
 }
 
-export const deleteAsset: MutationResolvers['deleteAsset'] = ({ id }) => {
+export const deleteAsset: MutationResolvers['deleteAsset'] = async ({ id }) => {
+  const item = await asset({ id })
+  const location = item.location
+
+  await deleteFile(location)
+
   return db.asset.delete({
     where: { id },
   })

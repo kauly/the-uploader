@@ -11,3 +11,19 @@
 /**
  * END --- SETUP TAILWINDCSS EDIT
  */
+
+
+.header-animation-text {
+
+  animation: move 5s linear infinite;
+}
+
+@keyframes move {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
